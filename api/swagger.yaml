@@ -605,7 +605,7 @@ paths:
           description: "failed operation"
           schema:
             $ref: "#/definitions/onError"
-  /file/{file_ix}:
+  /file/{name}:
     get:
       security:
       - UserSecurity: []         
@@ -618,8 +618,8 @@ paths:
       - "application/json"
       parameters:
       - in: "path"
-        name: file_ix
-        type: integer
+        name: name
+        type: string
         required: true
       responses:
         200:
@@ -631,6 +631,7 @@ paths:
           schema:
             $ref: "#/definitions/onError"
     put:
+      deprecated: true
       security:
       - UserSecurity: []         
       tags:
@@ -642,8 +643,8 @@ paths:
       - "application/json"
       parameters:
       - in: "path"
-        name: file_ix
-        type: integer
+        name: name
+        type: string
         required: true
       - in: "body"
         name: "file"
@@ -671,8 +672,8 @@ paths:
       - "application/json"
       parameters:
       - in: "path"
-        name: file_ix
-        type: integer
+        name: name
+        type: string
         required: true
       responses:
         200:
@@ -810,22 +811,23 @@ paths:
           schema:
             $ref: "#/definitions/onError"
             
-  /vote_item/{vote_item_ix}:
-    put:
+  /vote_item/:
+    post:
       security:
       - UserSecurity: []         
       tags:
       - "Vote"
       summary: "Vote_item"
       description: ""
-      operationId: "Vote to vote_item"
+      operationId: "create vote_item"
       produces:
       - "application/json"
       parameters:
-      - in: "path"
-        name: vote_item_ix
-        type: integer
+      - in: "body"
+        name: "body"
         required: true
+        schema:
+          $ref: "#/definitions/vote_item"
       responses:
         200:
           description: "success operation"
@@ -835,7 +837,60 @@ paths:
           description: "failed operation"
           schema:
             $ref: "#/definitions/onError"
-          
+    get:
+      security:
+      - UserSecurity: []         
+      tags:
+      - "Vote"
+      summary: "Vote_item"
+      description: ""
+      operationId: "find vote_item"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: vote_ix
+        type: integer
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/vote_item"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /vote_to_item:
+    post:
+      security:
+      - UserSecurity: []         
+      tags:
+      - "Vote"
+      summary: "Vote_to_item"
+      description: ""
+      operationId: "vote_to_item"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            user_ix:
+              type: integer
+            vote_item_ix:
+              type: integer
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/vote_item"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"      
 definitions : 
   onError:
     properties:
@@ -903,7 +958,7 @@ definitions :
         type: boolean
       is_anon:
         type: boolean
-      url:
+      name:
         type: string
       create_at:
         type: string
@@ -930,18 +985,6 @@ definitions :
         type: string
       close_at:
         type: string
-      is_voted:
-        type: boolean
-      values: 
-        type: array
-        items:
-          properties:
-            ix:
-              type: number
-            contents:
-              type: string
-            choice_count:
-              type: number
   vote_item:
     properties:
       ix:
@@ -950,8 +993,6 @@ definitions :
         type: number
       contents:
         type: string
-      choice_count:
-        type: number
 
         
 securityDefinitions:

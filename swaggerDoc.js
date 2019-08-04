@@ -12,7 +12,7 @@ const options = {
             version: '1.0.0',
             description: 'Test API with express',
         },
-        host: 'dochoon.com:3000',
+        host: 'localhost:3000',
         basePath: '/api/'
     },
 //swagger api가 존재하는 곳 입니다.

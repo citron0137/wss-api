@@ -1,6 +1,7 @@
 const router = require('express').Router()
-const { File } = require('../models');
+const { File, Sequelize } = require('../models');
 const Env = require('../config/environments');
+const Op = Sequelize.Op;
 
 var multer = require('multer');
 
@@ -9,7 +10,7 @@ var storage = multer.diskStorage({
 	  cb(null, 'uploads/') // cb 콜백함수를 통해 전송된 파일 저장 디렉토리 설정
 	},
 	filename: function (req, file, cb) {
-	  cb(null, file.originalname) // cb 콜백함수를 통해 전송된 파일 이름 설정
+	  cb(null, Date.now()+"_"+file.originalname) // cb 콜백함수를 통해 전송된 파일 이름 설정
 	}
   })
   var upload = multer({ storage: storage })
@@ -20,7 +21,7 @@ router.post('/', upload.single('file'), function(req, res, next){
 	
 	const user_ix = 1;
 	const type = req.file.mimetype;
-	const url = ""+req.file.path;
+	const name = req.file.filename;
 	
 	const onError = (error) => {
 		res.status(400).json({
@@ -29,13 +30,72 @@ router.post('/', upload.single('file'), function(req, res, next){
 		})
 	}
 	File.create({
-		user_ix,type,url
+		user_ix,type,name
 	})
 	.then((file)=>{
 		res.status(200).json(file);
 	}).catch(onError)
 
 });
+
+
+router.get('/',(req, res) =>{	
+	const name = req.query.name || req.body.name || "%"
+	const onError = (error) => {
+		res.status(400).json({
+			success: false,
+			message: error.message
+		})
+	}
+	File.findAll({
+		where:{
+			name:{[Op.like]:"%"+name+"%"}
+		}
+	}).then((post)=>{
+		res.status(200).json(post);
+	}).catch(onError)
+}) 
+
+router.get('/:name',(req, res) =>{	
+	const name = req.params.name
+
+	const onError = (error) => {
+		res.status(403).json({
+			success: false,
+			message: error.message
+		})
+	}
+	File.findOne({
+		where:{
+			name
+		}
+	}).then((post)=>{
+		res.status(201).json(post);
+	}).catch(onError)
+})
+
+
+
+router.delete('/:name',(req, res) =>{	
+	const name = req.params.name
+	const onError = (error) => {
+		res.status(403).json({
+			success: false,
+			message: error.message
+		})
+	}
+	File.destroy({
+		where:{
+			name
+		}
+	}).then((post)=>{
+		res.status(201).json({
+			success: true,
+			message: "delete success"
+		});
+	}).catch(onError)
+})
+
 
 
 module.exports = router

@@ -22,4 +22,7 @@ db.Post = require('./post')(sequelize, Sequelize);
 db.Comment = require('./comment')(sequelize, Sequelize);
 db.File = require('./file')(sequelize, Sequelize);
 
+db.Vote = require('./vote')(sequelize, Sequelize);
+db.VoteItem = require('./vote_item')(sequelize, Sequelize);
+db.VoteUser = require('./vote_user')(sequelize, Sequelize);
 module.exports = db;

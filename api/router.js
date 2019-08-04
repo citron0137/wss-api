@@ -3,6 +3,7 @@ const router = require('express').Router()
 const auth = require('./auth')
 const board = require('./board')
 const post = require('./post')
+const vote = require('./vote')
 
 router.post('/auth/register', auth.register)
 router.post('/auth/login', auth.login)
@@ -31,6 +32,17 @@ router.put('/post/:post_ix', post.updatePost)
 router.delete('/post/:post_ix', post.deletePost)
 
 router.use('/file', require('./file'))
+
+router.post('/vote/', vote.createVote)
+router.get('/vote/', vote.findVotes)
+router.get('/vote/:vote_ix', vote.findVoteByIx)
+router.put('/vote/:vote_ix', vote.updateVote)
+router.delete('/vote/:vote_ix', vote.deleteVote)
+
+router.post('/vote_item/', vote.createVoteItem)
+router.get('/vote_item/', vote.findVoteItems)
+
+router.post('/vote_to_item/', vote.voteToItem)
 
 module.exports = router
 
