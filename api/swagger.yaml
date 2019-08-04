@@ -455,6 +455,10 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "path"
+        name: comment_ix
+        type: integer
+        required: true
       - in: "body"
         name: "body"
         required: true
@@ -478,6 +482,10 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "path"
+        name: comment_ix
+        type: integer
+        required: true
       - in: "body"
         name: "body"
         required: true
@@ -501,11 +509,10 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
+      - in: "path"
+        name: comment_ix
+        type: integer
         required: true
-        schema:
-          $ref: "#/definitions/comment"
       responses:
         200:
           description: "success operation"
@@ -526,27 +533,61 @@ paths:
       - "application/json"
       parameters:
       - in: "body"
-        name: "body"
+        name: "file"
         required: true
         schema:
-          type: object
-          properties:
-            name:
-              type: string
+          type: string
       responses:
-        default:
-          description: "successful operation"
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/file"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    get:
+      tags:
+      - "File"
+      summary: "Get Files"
+      description: ""
+      operationId: "getFiles"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/file"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /file/:ix:
     get:
       tags:
       - "File"
       summary: "Get File"
       description: ""
-      operationId: "get File"
+      operationId: "getFile"
       produces:
       - "application/json"
+      parameters:
+      - in: "path"
+        name: comment_ix
+        type: integer
+        required: true
       responses:
-        default:
-          description: "successful operation"
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/file"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
     put:
       tags:
       - "File"
@@ -556,17 +597,24 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - in: "path"
+        name: comment_ix
+        type: integer
+        required: true
       - in: "body"
-        name: "body"
+        name: "file"
         required: true
         schema:
-          type: object
-          properties:
-            name:
-              type: string
+          type: string
       responses:
-        default:
-          description: "successful operation"
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/file"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
     delete:
       tags:
       - "File"
@@ -576,17 +624,19 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
+      - in: "path"
+        name: comment_ix
+        type: integer
         required: true
-        schema:
-          type: object
-          properties:
-            name:
-              type: string
       responses:
-        default:
-          description: "successful operation"
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/onError"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
   /vote:
     post:
       tags:
@@ -601,24 +651,59 @@ paths:
         name: "body"
         required: true
         schema:
-          type: object
-          properties:
-            name:
-              type: string
+          $ref: "#/definitions/vote"
       responses:
-        default:
-          description: "successful operation"
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/vote"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
     get:
       tags:
       - "Vote"
       summary: "Get Vote"
       description: ""
-      operationId: "get Vote"
+      operationId: "getVotes"
       produces:
       - "application/json"
       responses:
-        default:
-          description: "successful operation"
+        200:
+          description: "success operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/vote"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+          
+  /vote/:ix:
+    get:
+      tags:
+      - "Vote"
+      summary: "Get Vote"
+      description: ""
+      operationId: "getVote"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: vote_ix
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/vote"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
     put:
       tags:
       - "Vote"
@@ -632,13 +717,20 @@ paths:
         name: "body"
         required: true
         schema:
-          type: object
-          properties:
-            name:
-              type: string
+          $ref: "#/definitions/vote"
+      - in: "path"
+        name: vote_ix
+        type: integer
+        required: true
       responses:
-        default:
-          description: "successful operation"
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/vote"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
     delete:
       tags:
       - "Vote"
@@ -648,18 +740,43 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
+      - in: "path"
+        name: vote_ix
+        type: integer
         required: true
-        schema:
-          type: object
-          properties:
-            name:
-              type: string
       responses:
-        default:
-          description: "successful operation"
-          
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/onError"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+            
+  /vote_item/:ix:
+    put:
+      tags:
+      - "Vote"
+      summary: "Vote_item"
+      description: ""
+      operationId: "Vote to vote_item"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: vote_item_ix
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/vote_item"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
           
           
 securityDefinitions:
@@ -740,15 +857,42 @@ definitions :
         type: string
       update_at:
         type: string
+        
   vote:
     properties:
       ix:
         type: number
-      post_ix:
-        type: number
+      title:
+        type: string
       is_anon:
         type: boolean
       create_at:
         type: string
       update_at:
         type: string
+      start_at:
+        type: string
+      close_at:
+        type: string
+      is_voted:
+        type: boolean
+      values: 
+        type: array
+        items:
+          properties:
+            ix:
+              type: number
+            value:
+              type: string
+            choice_count:
+              type: number
+  vote_item:
+    properties:
+      ix:
+        type: number
+      vote_ix:
+        type: number
+      value:
+        type: string
+      choice_count:
+        type: number
