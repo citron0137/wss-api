@@ -1,6 +1,6 @@
 
 module.exports = (sequelize, DataTypes) =>{
-    return sequelize.define('user',{
+    return sequelize.define('file',{
         ix: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
         user_ix: {type: DataTypes.INTEGER},
         type : {type: DataTypes.STRING(32), allowNull: false},
