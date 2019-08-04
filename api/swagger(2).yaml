@@ -1,0 +1,754 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "WSS - API"
+  contact:
+    email: "citron0137@gmail.com"
+host: "localhost"
+basePath: "/"
+schemes:
+- "http"
+paths:
+  /auth/register:
+    post:
+      tags:
+      - "Auth"
+      summary: "Create user"
+      description: ""
+      operationId: "register"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "user object"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            id:
+              type: string
+            pw:
+              type: string
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: object
+            properties:
+              success:
+               type: boolean
+              ix:
+                type: number
+              id:
+                type: string
+              name:
+                type: string
+              is_admin:
+                type: boolean
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+          
+  /auth/login:
+    post:
+      tags:
+      - "Auth"
+      summary: "login"
+      description: ""
+      operationId: "login"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "user object"
+        required: true
+        schema:
+          type: object
+          properties:
+            id:
+              type: string
+            pw:
+              type: string
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: object
+            properties:
+              success:
+               type: boolean
+              message:
+                type: string
+              token:
+                type: string
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /auth/check:
+    post:
+      tags:
+      - "Auth"
+      summary: "check"
+      description: ""
+      operationId: "check"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: object
+            properties:
+              ix:
+                type: number
+              id:
+                type: string
+              is_admin:
+                type: boolean
+              iat:
+                type: number
+              exp:
+                type: number
+              sub:
+                type: string
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /board:
+    post:
+      tags:
+      - "Board"
+      summary: "Create board"
+      description: ""
+      operationId: "createBoard"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            is_admin:
+              type: boolean
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/board"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    get:
+      tags:
+      - "Board"
+      summary: "Get boards"
+      description: ""
+      operationId: "get boards"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "query"
+        name: board_name
+        type: string
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/board"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /board/:ix:
+    get:
+      tags:
+      - "Board"
+      summary: "Get board"
+      description: ""
+      operationId: "get board"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: board_ix
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/board"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    put:
+      tags:
+      - "Board"
+      summary: "Get boards"
+      description: ""
+      operationId: "update board"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: board_ix
+        type: integer
+        required: true
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/board"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    delete:
+      tags:
+      - "Board"
+      summary: "delete boards"
+      description: ""
+      operationId: "delete board"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: board_ix
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: object
+            properties:
+              success:
+               type: boolean
+              message:
+                type: string
+        400:
+          description: "failed operation"
+          schema:
+            type: object
+            properties:
+              success:
+               type: boolean
+              message:
+                type: string
+          
+  /post:
+    post:
+      tags:
+      - "Post"
+      summary: "Create Post"
+      description: ""
+      operationId: "createPost"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            board_ix:
+              type: number
+            title:
+              type: string
+            contents:
+              type: string
+            is_private:
+              type: boolean
+            is_commnet:
+              type: boolean
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/post"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    get:
+      tags:
+      - "Post"
+      summary: "Get Posts"
+      description: ""
+      operationId: "getPosts"
+      produces:
+      - "application/json"
+      parameters:
+        - in: "query"
+          name: title
+          type: string
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/post"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /post/:ix:
+    get:
+      tags:
+      - "Post"
+      summary: "Get Post"
+      description: ""
+      operationId: "getPost"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: board_ix
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/post"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    put:
+      tags:
+      - "Post"
+      summary: "Get Post"
+      description: ""
+      operationId: "update Post"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: board_ix
+        type: integer
+        required: true
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            board_ix:
+              type: number
+            title:
+              type: string
+            contents:
+              type: string
+            is_private:
+              type: boolean
+            is_commnet:
+              type: boolean
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/post"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    delete:
+      tags:
+      - "Post"
+      summary: "delete Post"
+      description: ""
+      operationId: "delete Post"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: board_ix
+        type: integer
+        required: true
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/onError"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /comment:
+    post:
+      tags:
+      - "Comment"
+      summary: "Create Comment"
+      description: ""
+      operationId: "createComment"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/comment"
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/comment"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    get:
+      tags:
+      - "Comment"
+      summary: "Get Comment"
+      description: ""
+      operationId: "getComments"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/comment"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+            
+  /comment/:ix:
+    get:
+      tags:
+      - "Comment"
+      summary: "Get Comment"
+      description: ""
+      operationId: "getComment"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/comment"
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/comment"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    put:
+      tags:
+      - "Comment"
+      summary: "Get Comment"
+      description: ""
+      operationId: "update Comment"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/comment"
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/comment"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+    delete:
+      tags:
+      - "Comment"
+      summary: "delete Comment"
+      description: ""
+      operationId: "delete Comment"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/comment"
+      responses:
+        200:
+          description: "success operation"
+          schema:
+            $ref: "#/definitions/onError"
+        400:
+          description: "failed operation"
+          schema:
+            $ref: "#/definitions/onError"
+  /file:
+    post:
+      tags:
+      - "File"
+      summary: "Create File"
+      description: ""
+      operationId: "create File"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+      responses:
+        default:
+          description: "successful operation"
+    get:
+      tags:
+      - "File"
+      summary: "Get File"
+      description: ""
+      operationId: "get File"
+      produces:
+      - "application/json"
+      responses:
+        default:
+          description: "successful operation"
+    put:
+      tags:
+      - "File"
+      summary: "Get File"
+      description: ""
+      operationId: "update File"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+      responses:
+        default:
+          description: "successful operation"
+    delete:
+      tags:
+      - "File"
+      summary: "delete File"
+      description: ""
+      operationId: "delete File"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+      responses:
+        default:
+          description: "successful operation"
+  /vote:
+    post:
+      tags:
+      - "Vote"
+      summary: "Create Vote"
+      description: ""
+      operationId: "create Vote"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+      responses:
+        default:
+          description: "successful operation"
+    get:
+      tags:
+      - "Vote"
+      summary: "Get Vote"
+      description: ""
+      operationId: "get Vote"
+      produces:
+      - "application/json"
+      responses:
+        default:
+          description: "successful operation"
+    put:
+      tags:
+      - "Vote"
+      summary: "Get Vote"
+      description: ""
+      operationId: "update Vote"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+      responses:
+        default:
+          description: "successful operation"
+    delete:
+      tags:
+      - "Vote"
+      summary: "delete Vote"
+      description: ""
+      operationId: "delete Vote"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+      responses:
+        default:
+          description: "successful operation"
+          
+          
+          
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
+  
+definitions : 
+  onError:
+    properties:
+      message: 
+        type: string
+      boolean:
+        type: boolean
+  board :  
+    properties: 
+      ix: 
+        type: number
+      name: 
+        type: string
+      is_admin:
+        type: boolean
+  post:  
+    properties: 
+      ix: 
+        type: number
+      user_name:
+        type: string
+      board_name:
+        type: string
+      titile:
+        type: string
+      contents:
+        type: string
+      view_count:
+        type: number
+      is_private:
+        type: boolean
+      is_comment:
+        type: boolean
+      create_at:
+        type: string
+      update_at:
+        type: string
+  comment:
+    properties:
+      ix:
+        type: number
+      post_ix:
+        type: number
+      user_name:
+        type: string
+      is_private:
+        type: boolean
+      contents:
+        type: string
+      create_at:
+        type: string
+      update_at:
+        type: string
+  file:
+    properties:
+      ix:
+        type: number
+      type:
+        type: string
+      user_name:
+        type: string
+      is_private:
+        type: boolean
+      url:
+        type: string
+      create_at:
+        type: string
+      update_at:
+        type: string
+  vote:
+    properties:
+      ix:
+        type: number
+      post_ix:
+        type: number
+      is_anon:
+        type: boolean
+      create_at:
+        type: string
+      update_at:
+        type: string
