@@ -1,6 +1,6 @@
-const { User, Board } = require('../models');
+const { User, Board, Sequelize } = require('../models');
 const Env = require('../config/environments');
-
+const Op = Sequelize.Op;
 
 exports.createBoard = (req, res) =>{
 	
@@ -25,34 +25,28 @@ exports.createBoard = (req, res) =>{
 
 
 exports.findBoardByName = (req, res) =>{	
-	const name = req.query.name || req.body.name
+	const name = req.query.name || req.body.name || "%"
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,
 			message: error.message
 		})
 	}
-	if(!name){
-		Board.findAll()
-		.then((board)=>{
-			res.status(201).json(board);
-		})
-		.catch(onError)
-	}
-	else{
-		Board.findOne({
-			where:{
-					name
+	Board.findAll({
+		where:{
+			name:{
+				[Op.like]: "%"+name+"%"
 			}
-		}).then((board)=>{
-			res.status(201).json(board);
-		}).catch(onError)
-	}
+		}
+	}).then((board)=>{
+		res.status(201).json(board);
+	}).catch(onError)
+
 
 }
 
 exports.findBoardByIx = (req, res) =>{	
-	const board_idx = req.params.ix
+	const board_ix = req.params.board_ix
 	
 	const onError = (error) => {
 		res.status(403).json({
@@ -63,7 +57,7 @@ exports.findBoardByIx = (req, res) =>{
 
 	Board.findOne({
 		where:{
-			ix: board_idx
+			ix: board_ix
 		}
 	}).then((board)=>{
 		res.status(201).json(board);
@@ -72,7 +66,7 @@ exports.findBoardByIx = (req, res) =>{
 
 
 exports.updateBoard = (req, res) =>{	
-	const board_idx = req.params.ix
+	const board_ix = req.params.board_ix
 	const name = req.query.name || req.body.name
 	
 	const onError = (error) => {
@@ -86,12 +80,12 @@ exports.updateBoard = (req, res) =>{
 		name
 	},{
 		where:{
-			ix: board_idx
+			ix: board_ix
 		}
 	}).then((board)=>{
 		Board.findOne({
 			where:{
-				ix: board_idx
+				ix: board_ix
 			}
 		}).then((board)=>{
 			res.status(201).json(board);
@@ -99,4 +93,22 @@ exports.updateBoard = (req, res) =>{
 	}).catch(onError)
 }
 
-
+exports.deleteBoard = (req, res) =>{
+	const board_ix = req.params.board_ix
+	const onError = (error) => {
+		res.status(403).json({
+			success: false,
+			message: error.message
+		})
+	}
+	Board.destroy({
+		where:{
+			ix: board_ix
+		}
+	}).then((board)=>{
+		res.status(201).json({
+			success: true,
+			message: "delete success"
+		});
+	}).catch(onError)
+}

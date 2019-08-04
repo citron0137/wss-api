@@ -1,58 +1,55 @@
-const { User, Board, Post } = require('../models');
+const {Post, Sequelize } = require('../models');
 const Env = require('../config/environments');
-
+const Op = Sequelize.Op;
 
 exports.createPost = (req, res) =>{	
-	const { name } = req.body;
+
+	const { board_ix, title, contents, is_private, is_comment } = req.body;
+	
 	const onError = (error) => {
-		res.status(403).json({
+		res.status(400).json({
 			success: false,
 			message: error.message
 		})
 	}
-
-	Board.create({
-		name
+	Post.create({
+		board_ix,
+		title,
+		contents,
+		is_private,
+		is_comment
 	})
-	.then((board)=>{
-		res.status(201).json(board);
+	.then((post)=>{
+		res.status(200).json(post);
 	}).catch(onError)
-
-	//TODO 1. getBoardInfo (권한 체크) 2. insert Data 3. return data
 }
 
 
-
-exports.findPostByTitle = (req, res) =>{	
-	const name = req.query.name || req.body.name
+exports.findPosts = (req, res) =>{	
+	const title = req.query.title || req.body.title || "%"
+	const board_ix = req.query.board_ix || req.body.board_ix || "%"
 	const onError = (error) => {
-		res.status(403).json({
+		res.status(400).json({
 			success: false,
 			message: error.message
 		})
 	}
-	if(!name){
-		Board.findAll()
-		.then((board)=>{
-			res.status(201).json(board);
-		})
-		.catch(onError)
-	}
-	else{
-		Board.findOne({
-			where:{
-					name
-			}
-		}).then((board)=>{
-			res.status(201).json(board);
-		}).catch(onError)
-	}
+	Post.findAll({
+		where:{
+				title:{[Op.like]:"%"+title+"%"},
+				board_ix:{[Op.like]:board_ix}
+		}
+	}).then((post)=>{
+		res.status(200).json(post);
+	}).catch(onError)
+
+	
 
 }
 
 exports.findPostByIx = (req, res) =>{	
-	const board_idx = req.params.ix
-	
+	const post_ix = req.params.post_ix
+
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,
@@ -60,18 +57,18 @@ exports.findPostByIx = (req, res) =>{
 		})
 	}
 
-	Board.findOne({
+	Post.findOne({
 		where:{
-			ix: board_idx
+			ix: post_ix
 		}
-	}).then((board)=>{
-		res.status(201).json(board);
+	}).then((post)=>{
+		res.status(201).json(post);
 	}).catch(onError)
 }
 
 
 exports.updatePost = (req, res) =>{	
-	const idx = req.params.ix
+	const post_ix = req.params.post_ix
 	
 	const onError = (error) => {
 		res.status(403).json({
@@ -84,17 +81,35 @@ exports.updatePost = (req, res) =>{
 		name
 	},{
 		where:{
-			ix: board_idx
+			ix: post_ix
 		}
 	}).then((board)=>{
-		Board.findOne({
+		Post.findOne({
 			where:{
-				ix: board_idx
+				ix: post_ix
 			}
-		}).then((board)=>{
-			res.status(201).json(board);
+		}).then((post)=>{
+			res.status(201).json(post);
 		})
 	}).catch(onError)
 }
 
-
+exports.deletePost = (req, res) =>{
+	const post_ix = req.params.post_ix
+	const onError = (error) => {
+		res.status(403).json({
+			success: false,
+			message: error.message
+		})
+	}
+	Post.destroy({
+		where:{
+			ix: post_ix
+		}
+	}).then((post)=>{
+		res.status(201).json({
+			success: true,
+			message: "delete success"
+		});
+	}).catch(onError)
+}

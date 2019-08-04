@@ -8,15 +8,16 @@ const options = {
 //swagger문서 설정
     swaggerDefinition: {
         info: {
-            title: 'Test API',
+            title: 'WSS API',
             version: '1.0.0',
             description: 'Test API with express',
         },
         host: 'localhost:3000',
-        basePath: '/'
+        basePath: '/api/'
     },
 //swagger api가 존재하는 곳 입니다.
-    apis: ['./api/*']
+    apis: ['./api/*'],
+//securityDefinitions
 };
 
 const specs = swaggereJsdoc(options);
