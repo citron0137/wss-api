@@ -20,5 +20,6 @@ db.User = require('./user')(sequelize, Sequelize);
 db.Board = require('./board')(sequelize, Sequelize);
 db.Post = require('./post')(sequelize, Sequelize);
 db.Comment = require('./comment')(sequelize, Sequelize);
+db.File = require('./file')(sequelize, Sequelize);
 
 module.exports = db;
