@@ -4,7 +4,7 @@ const Op = Sequelize.Op;
 
 exports.createPost = (req, res) =>{	
 
-	const { board_ix, title, contents, is_private, is_comment } = req.body;
+	const { board_ix, title, contents, is_private, is_comment, is_anon } = req.body;
 	
 	const onError = (error) => {
 		res.status(400).json({
@@ -17,6 +17,7 @@ exports.createPost = (req, res) =>{
 		title,
 		contents,
 		is_private,
+		is_anon,
 		is_comment
 	})
 	.then((post)=>{
@@ -69,7 +70,7 @@ exports.findPostByIx = (req, res) =>{
 
 exports.updatePost = (req, res) =>{	
 	const post_ix = req.params.post_ix
-	
+	const { board_ix, title, contents, is_private, is_comment, is_anon } = req.body;
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,
@@ -78,7 +79,12 @@ exports.updatePost = (req, res) =>{
 	}
 
 	Board.update({
-		name
+		board_ix, 
+		title, 
+		contents, 
+		is_private, 
+		is_comment, 
+		is_anon 
 	},{
 		where:{
 			ix: post_ix

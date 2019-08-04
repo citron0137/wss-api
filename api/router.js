@@ -16,6 +16,7 @@ router.post('/board', auth.ckAdm ,board.createBoard)
 router.put('/board/:ix', auth.ckAdm ,board.updateBoard)
 //router.delete('/board/:ix', auth.check ,board.deleteBoard)
 */
+
 router.get('/board/', board.findBoardByName)
 router.get('/board/:board_ix',  board.findBoardByIx)
 router.post('/board', board.createBoard)
@@ -29,6 +30,7 @@ router.get('/post/:post_ix', post.findPostByIx)
 router.put('/post/:post_ix', post.updatePost)
 router.delete('/post/:post_ix', post.deletePost)
 
+router.use('/file', require('./file'))
 
 module.exports = router
 
