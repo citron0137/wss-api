@@ -66,7 +66,18 @@ exports.findVoteItems = (req, res) =>{
 			vote_ix
 		}
 	}).then((vote)=>{
-		res.status(200).json(vote);
+		Promise.all(vote.map((value) => {
+			return VoteUser.count({where:{vote_item_ix:value.dataValues.ix}})
+		})).then((res)=>{
+			vote.map((value, index, array)=>{
+				value.dataValues.count = res[index];
+			})
+			console.log("--------------------------------------------------");
+			console.log(vote);
+		}).then(()=>{
+			res.status(200).json(vote);
+		})
+		
 	}).catch(onError)
 }
 
