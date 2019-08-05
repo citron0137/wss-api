@@ -914,7 +914,7 @@ definitions :
         type: number
       board_ix:
         type: number
-      titile:
+      title:
         type: string
       contents:
         type: string
@@ -932,8 +932,10 @@ definitions :
     properties:
       ix:
         type: number
-      post_ix:
+      parent_ix:
         type: number
+      is_comment-parent:
+        type: boolean
       user_ix:
         type: string
       is_private:
