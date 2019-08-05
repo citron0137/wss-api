@@ -924,6 +924,8 @@ definitions :
         type: boolean
       is_comment:
         type: boolean
+      is_anon:
+        type: boolean
       create_at:
         type: string
       update_at:

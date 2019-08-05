@@ -1,28 +1,39 @@
-const {Post, Sequelize } = require('../models');
+const {Post,Board, Sequelize } = require('../models');
 const Env = require('../config/environments');
 const Op = Sequelize.Op;
 
 exports.createPost = (req, res) =>{	
 
 	const { board_ix, title, contents, is_private, is_comment, is_anon } = req.body;
-	const user_ix = req.decode.ix;
+	const user_ix = req.decoded.ix;
 	const onError = (error) => {
 		res.status(400).json({
 			success: false,
 			message: error.message
 		})
 	}
-	Post.create({
-		user_ix,
-		board_ix,
-		title,
-		contents,
-		is_private,
-		is_anon,
-		is_comment
-	})
-	.then((post)=>{
-		res.status(200).json(post);
+
+	Board.findOne({
+		where:{
+		ix:board_ix
+		}
+	}).then(board=>{
+		if(board.is_admin && !req.decoded.is_admin){
+			throw new Error("unAuthorize");
+		}else{
+		Post.create({
+			user_ix,
+			board_ix,
+			title,
+			contents,
+			is_private,
+			is_anon,
+			is_comment
+		})
+		.then((post)=>{
+			res.status(200).json(post);
+			})
+		}
 	}).catch(onError)
 }
 
@@ -37,9 +48,12 @@ exports.findPosts = (req, res) =>{
 		})
 	}
 	Post.findAll({
+		attributes:[
+		'ix','user_ix', 'board_ix', 'title', 'is_private', 'is_anon', 'is_comment'
+		],
 		where:{
-				title:{[Op.like]:"%"+title+"%"},
-				board_ix:{[Op.like]:board_ix}
+			title:{[Op.like]:"%"+title+"%"},
+			board_ix:{[Op.like]:board_ix}
 		}
 	}).then((post)=>{
 		res.status(200).json(post);

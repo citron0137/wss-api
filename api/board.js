@@ -4,7 +4,7 @@ const Op = Sequelize.Op;
 
 exports.createBoard = (req, res) =>{
 	
-	const { name } = req.body;
+	const { name, is_admin } = req.body;
 
 	
 	const onError = (error) => {
@@ -19,7 +19,8 @@ exports.createBoard = (req, res) =>{
 	}).then((board)=>{
 		if(!board){
 			Board.create({
-				name
+				name,
+				is_admin
 			})
 			.then((board)=>{
 				res.status(201).json(board);

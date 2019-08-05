@@ -14,7 +14,7 @@ exports.register = (req, res) =>{
                 id,
                 pw,
                 name,
-                is_admin:true
+                is_admin:false
             }).then((user) => {
                 user.pw = "hidden";
                 res.status(201).json(user);

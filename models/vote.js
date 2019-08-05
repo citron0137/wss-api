@@ -7,8 +7,8 @@ module.exports = (sequelize, DataTypes) =>{
         is_anon : {type: DataTypes.BOOLEAN, defaultValue: false},
         is_anon_vote : {type: DataTypes.BOOLEAN, defaultValue: false},
         is_private : {type: DataTypes.BOOLEAN, defaultValue: false},
-        start_at: {type: DataTypes.DATE, defaultValue: false},
-        close_at: {type: DataTypes.DATE, defaultValue: false}
+        start_at: {type: DataTypes.DATE, defaultValue: sequelize.fn('NOW')},
+        close_at: {type: DataTypes.DATE, defaultValue: sequelize.fn('NOW')}
     },{
         timestamps: true
     });
