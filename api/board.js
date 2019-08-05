@@ -4,9 +4,9 @@ const Op = Sequelize.Op;
 
 exports.createBoard = (req, res) =>{
 	
-	//TODO name check ( if already exist)
-	
 	const { name } = req.body;
+
+	
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,
@@ -14,11 +14,17 @@ exports.createBoard = (req, res) =>{
 		})
 	}
 
-	Board.create({
-		name
-	})
-	.then((board)=>{
-		res.status(201).json(board);
+	Board.findOne({
+		where:{name}
+	}).then((board)=>{
+		if(!board){
+			Board.create({
+				name
+			})
+			.then((board)=>{
+				res.status(201).json(board);
+			})
+		}
 	}).catch(onError)
 }
 

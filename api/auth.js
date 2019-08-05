@@ -4,17 +4,29 @@ const Env = require('../config/environments');
 
 exports.register = (req, res) =>{
 	const { id, pw, name } = req.body;
-	//TODO verify input
-
-	User.create({
-        id,
-        pw,
-        name,
-        is_admin:true
-	}).then((user) => {
-		user.pw = "hidden";
-		res.status(201).json(user);
-	});
+    User.findOne({
+        where:{
+            id
+        }
+    }).then((user)=>{
+        if(!user){
+            User.create({
+                id,
+                pw,
+                name,
+                is_admin:true
+            }).then((user) => {
+                user.pw = "hidden";
+                res.status(201).json(user);
+            }); 
+        }
+        else{
+            res.status(401).json({
+                success: false,
+                message: "dup id"
+            })
+        }
+    })
 }
 
 exports.login = (req, res) =>{
