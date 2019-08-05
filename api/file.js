@@ -19,7 +19,7 @@ var storage = multer.diskStorage({
 router.post('/', upload.single('file'), function(req, res, next){
 	console.log(req.file); // 콘솔(터미널)을 통해서 req.file Object 내용 확인 가능.
 	
-	const user_ix = 1;
+	const user_ix = req.decode.ix;
 	const type = req.file.mimetype;
 	const name = req.file.filename;
 	

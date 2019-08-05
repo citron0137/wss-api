@@ -5,7 +5,7 @@ const Op = Sequelize.Op;
 exports.createComment = (req, res) =>{	
 
 	const { parent_ix, is_comment_parent, contents, is_private, is_anon } = req.body;
-	
+	const user_ix = req.decode.ix;
 	const onError = (error) => {
 		res.status(400).json({
 			success: false,
@@ -13,7 +13,7 @@ exports.createComment = (req, res) =>{
 		})
 	}
 	Comment.create({
-		parent_ix, is_comment_parent, contents, is_private, is_anon
+		user_ix,parent_ix, is_comment_parent, contents, is_private, is_anon
 	})
 	.then((comment)=>{
 		res.status(200).json(comment);

@@ -75,6 +75,7 @@ exports.info = (req, res) => {
     // read the token from header or url 
     const token = req.headers['x-access-token'] || req.query.token
 
+    console.log(req.decoded);
     // token does not exist
     if(!token) {
         return res.status(403).json({

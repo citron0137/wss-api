@@ -4,7 +4,8 @@ const Op = Sequelize.Op;
 
 exports.createVote = (req, res) =>{	
 
-	const { user_ix, title, is_private, is_comment, is_anon,is_anon_vote,start_at,close_at} = req.body;
+	const { title, is_private, is_comment, is_anon,is_anon_vote,start_at,close_at} = req.body;
+	const user_ix = req.decode.ix;
 	const onError = (error) => {
 		res.status(400).json({
 			success: false,
@@ -151,8 +152,8 @@ exports.deleteVote = (req, res) =>{
 
 
 exports.voteToItem = (req, res) =>{	
-	const { user_ix, vote_item_ix } = req.body;
-	
+	const {  vote_item_ix } = req.body;
+	const user_ix = req.decode.ix;
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,

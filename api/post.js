@@ -5,7 +5,7 @@ const Op = Sequelize.Op;
 exports.createPost = (req, res) =>{	
 
 	const { board_ix, title, contents, is_private, is_comment, is_anon } = req.body;
-	
+	const user_ix = req.decode.ix;
 	const onError = (error) => {
 		res.status(400).json({
 			success: false,
@@ -13,6 +13,7 @@ exports.createPost = (req, res) =>{
 		})
 	}
 	Post.create({
+		user_ix,
 		board_ix,
 		title,
 		contents,
