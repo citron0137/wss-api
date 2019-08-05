@@ -18,7 +18,7 @@ exports.createPost = (req, res) =>{
 		ix:board_ix
 		}
 	}).then(board=>{
-		if(board.is_admin && !req.decoded.is_admin){
+		if(!board || (board.is_admin && !req.decoded.is_admin)){
 			throw new Error("unAuthorize");
 		}else{
 		Post.create({
@@ -49,18 +49,23 @@ exports.findPosts = (req, res) =>{
 	}
 	Post.findAll({
 		attributes:[
-		'ix','user_ix', 'board_ix', 'title', 'is_private', 'is_anon', 'is_comment'
+		'ix','user_ix', 'board_ix', 'title', 'is_private', 'is_anon', 'view_count'
 		],
 		where:{
 			title:{[Op.like]:"%"+title+"%"},
 			board_ix:{[Op.like]:board_ix}
 		}
 	}).then((post)=>{
+		post.forEach(element => {
+			if(element.is_anon && !req.decoded.is_admin && element.user_ix != req.decoded.ix){
+				element.user_ix = -1;
+			}
+			if(element.is_private&& !req.decoded.is_admin && element.user_ix != req.decoded.ix){
+				element.title = "private post";
+			}
+		});
 		res.status(200).json(post);
 	}).catch(onError)
-
-	
-
 }
 
 exports.findPostByIx = (req, res) =>{	
@@ -78,6 +83,22 @@ exports.findPostByIx = (req, res) =>{
 			ix: post_ix
 		}
 	}).then((post)=>{
+		if(!post){
+			throw new Error("doesn't exist");
+		}
+		if(post.is_private && !req.decoded.is_admin &&post.user_ix != req.decoded.ix){
+			throw new Error('Unauthorized');
+		}
+		if(post.is_anon && !req.decoded.is_admin &&post.user_ix != req.decoded.ix){
+			post.user_ix = -1;
+		}
+		Post.update({
+			view_count: post.view_count+1
+		},{
+			where:{
+				ix: post_ix
+			}
+		})
 		res.status(201).json(post);
 	}).catch(onError)
 }
@@ -92,27 +113,30 @@ exports.updatePost = (req, res) =>{
 			message: error.message
 		})
 	}
-
-	Board.update({
-		board_ix, 
-		title, 
-		contents, 
-		is_private, 
-		is_comment, 
-		is_anon 
-	},{
+	Post.findOne({ //authCheck
 		where:{
 			ix: post_ix
 		}
-	}).then((board)=>{
-		Post.findOne({
-			where:{
-				ix: post_ix
-			}
-		}).then((post)=>{
-			res.status(201).json(post);
-		})
+	}).then(post=>{
+		if(!post){
+			throw new Error("doesn't exist");
+		}
+		if(post.user_ix != req.decoded.ix && !req.decoded.is_admin){
+			throw new Error("Unauthorized")
+		}else{
+			Post.update({board_ix, title, contents, is_private, is_comment, is_anon},{where:{ix:post_ix}})//update
+			.then(()=>{
+				Post.findOne({
+					where:{
+						ix: post_ix
+					}
+				}).then((post)=>{
+					res.status(201).json(post);
+				})
+			})
+		}
 	}).catch(onError)
+	
 }
 
 exports.deletePost = (req, res) =>{
@@ -123,14 +147,27 @@ exports.deletePost = (req, res) =>{
 			message: error.message
 		})
 	}
-	Post.destroy({
+	Post.findOne({ //authCheck
 		where:{
 			ix: post_ix
 		}
-	}).then((post)=>{
-		res.status(201).json({
-			success: true,
-			message: "delete success"
-		});
+	}).then(post=>{
+		if(!post){
+			throw new Error("doesn't exist");
+		}
+		if(post.user_ix != req.decoded.ix && !req.decoded.is_admin){
+			throw new Error("Unauthorized")
+		}else{
+			Post.destroy({
+				where:{
+					ix: post_ix
+				}
+			}).then((post)=>{
+				res.status(201).json({
+					success: true,
+					message: "delete success"
+				});
+			})
+		}
 	}).catch(onError)
 }
