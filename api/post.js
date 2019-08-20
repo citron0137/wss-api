@@ -41,6 +41,9 @@ exports.createPost = (req, res) =>{
 exports.findPosts = (req, res) =>{	
 	const title = req.query.title || req.body.title || "%"
 	const board_ix = req.query.board_ix || req.body.board_ix || "%"
+	const page_num = req.query.page || req.body.page || 0
+
+
 	const onError = (error) => {
 		res.status(400).json({
 			success: false,
@@ -54,7 +57,9 @@ exports.findPosts = (req, res) =>{
 		where:{
 			title:{[Op.like]:"%"+title+"%"},
 			board_ix:{[Op.like]:board_ix}
-		}
+		},
+		limit: 10,
+		offset: 10*page_num
 	}).then((post)=>{
 		post.forEach(element => {
 			if(element.is_anon && !req.decoded.is_admin && element.user_ix != req.decoded.ix){
