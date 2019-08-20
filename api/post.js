@@ -111,7 +111,6 @@ exports.findPostByIx = (req, res) =>{
 
 exports.updatePost = (req, res) =>{	
 	const post_ix = req.params.post_ix
-	const { board_ix, title, contents, is_private, is_comment, is_anon } = req.body;
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,
@@ -129,6 +128,14 @@ exports.updatePost = (req, res) =>{
 		if(post.user_ix != req.decoded.ix && !req.decoded.is_admin){
 			throw new Error("Unauthorized")
 		}else{
+			const board_ix= req.body.board_ix || post.bord_ix;
+			const title= req.body.title|| post.bord_ix;
+			const contents= req.body.contents|| post.contents;
+			const is_private= req.body.is_private|| post.is_private;
+			const is_comment= req.body.is_comment|| post.is_comment;
+			const is_anon = req.body.is_anon|| post.is_anon;
+			console.log(req.body);
+			console.log(post);
 			Post.update({board_ix, title, contents, is_private, is_comment, is_anon},{where:{ix:post_ix}})//update
 			.then(()=>{
 				Post.findOne({
