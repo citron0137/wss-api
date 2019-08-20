@@ -45,10 +45,7 @@ exports.findComments = (req, res) =>{
 			post_ix:{[Op.like]:post_ix}
 		}
 	}).then((comment)=>{
-		
 			res.status(200).json(comment);
-		
-		
 	}).catch(onError)
 
 	

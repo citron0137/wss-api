@@ -50,6 +50,7 @@ exports.findPosts = (req, res) =>{
 			message: error.message
 		})
 	}
+
 	Post.findAll({
 		attributes:[
 		'ix','user_ix', 'board_ix', 'title', 'is_private', 'is_anon', 'view_count'
@@ -61,11 +62,13 @@ exports.findPosts = (req, res) =>{
 		limit: 10,
 		offset: 10*page_num
 	}).then((post)=>{
+		const is_admin = req.decoded.is_admin || false;
+		const user_ix = req.decoded.ixi || 0;
 		post.forEach(element => {
-			if(element.is_anon && !req.decoded.is_admin && element.user_ix != req.decoded.ix){
+			if(element.is_anon && !(is_admin) && element.user_ix != user_ix){
 				element.user_ix = -1;
 			}
-			if(element.is_private&& !req.decoded.is_admin && element.user_ix != req.decoded.ix){
+			if(element.is_private&& !(is_admin) && element.user_ix != (user_ix)){
 				element.title = "private post";
 			}
 		});
@@ -88,13 +91,16 @@ exports.findPostByIx = (req, res) =>{
 			ix: post_ix
 		}
 	}).then((post)=>{
+		const is_admin = req.decoded.is_admin || false;
+		const user_ix = req.decoded.ixi || 0;
+		
 		if(!post){
 			throw new Error("doesn't exist");
 		}
-		if(post.is_private && !req.decoded.is_admin &&post.user_ix != req.decoded.ix){
+		if(post.is_private && !is_admin &&post.user_ix != user_ix){
 			throw new Error('Unauthorized');
 		}
-		if(post.is_anon && !req.decoded.is_admin &&post.user_ix != req.decoded.ix){
+		if(post.is_anon && !is_admin &&post.user_ix !=user_ix){
 			post.user_ix = -1;
 		}
 		Post.update({

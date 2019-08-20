@@ -42,6 +42,7 @@ exports.login = (req, res) =>{
 					{
 						ix: user.ix,
 						id: user.id,
+						name: user.name,
 						is_admin: user.is_admin
 					}, 
 					secret, 
@@ -126,6 +127,28 @@ exports.info = (req, res) => {
     p.then(respond).catch(onError)
 }
 
+exports.getUserInfo = (req, res)=>{
+	const user_ix = req.query.user_ix || req.params.user_ix
+	console.log(user_ix)
+    const onError = (error) => {
+        res.status(403).json({
+            success: false,
+            message: error.message
+        })
+    }
+	User.findOne({
+		where:{
+			ix:user_ix
+		}
+	}).then((user) => {
+		user.pw = "Secret"
+		res.json({
+			success: true,
+            user
+        })
+	}).catch(onError)
+}
+
 exports.check  = (req, res, next) => {
     // read the token from header or url 
     const token = req.headers['x-access-token'] || req.query.token
@@ -163,48 +186,41 @@ exports.check  = (req, res, next) => {
     }).catch(onError)
 }
 
-exports.ckAdm = (req, res, next) => {
-    
-	console.log("check Admin =======================================================")
-	
-	// read the token from header or url 
+
+exports.ckusr  = (req, res, next) => {
+    // read the token from header or url 
     const token = req.headers['x-access-token'] || req.query.token
 
     // token does not exist
     if(!token) {
-        return res.status(403).json({
-            success: false,
-            message: 'not logged in'
-        })
-    }
-
-    // create a promise that decodes the token
-    const p = new Promise(
-        (resolve, reject) => {
-            jwt.verify(token, Env.jwt.secret , (err, decoded) => {
-                if(err) reject(err)
-                resolve(decoded)
-            })
-        }
-    )
-    
-	const ckAdm = (token) => {
-    	if(token.is_admin == false){
-			throw new Error("not Admin")
-		}
+		req.decoded = {}
+		console.log("NO TOKEN!!!!!!!!!!!!!!!!!!!!!!!!!")
+		next()
 	}
+	else{
 
-    // if it has failed to verify, it will return an error message
-    const onError = (error) => {
-        res.status(403).json({
-            success: false,
-            message: error.message
-        })
-    }
+		// create a promise that decodes the token
+		const p = new Promise(
+			(resolve, reject) => {
+				jwt.verify(token, Env.jwt.secret , (err, decoded) => {
+					if(err) reject(err)
+					resolve(decoded)
+				})
+			}
+		)
 
-    // process the promise
-    p.then(ckAdm).then((decoded)=>{
-        req.decoded = decoded
-        next()
-    }).catch(onError)
+		// if it has failed to verify, it will return an error message
+		const onError = (error) => {
+			res.status(403).json({
+				success: false,
+				message: error.message
+			})
+		}
+
+		// process the promise
+		p.then((decoded)=>{
+			req.decoded = decoded
+			next()
+		}).catch(onError) 
+	}
 }
