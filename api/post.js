@@ -63,7 +63,7 @@ exports.findPosts = (req, res) =>{
 		offset: 10*page_num
 	}).then((post)=>{
 		const is_admin = req.decoded.is_admin || false;
-		const user_ix = req.decoded.ixi || 0;
+		const user_ix = req.decoded.ix || 0;
 		post.forEach(element => {
 			if(element.is_anon && !(is_admin) && element.user_ix != user_ix){
 				element.user_ix = -1;
