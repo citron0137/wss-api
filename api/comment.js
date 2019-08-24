@@ -1,4 +1,4 @@
-const {Comment, Post, Sequelize } = require('../models');
+const {User, Comment, Post, Sequelize } = require('../models');
 const Env = require('../config/environments');
 const Op = Sequelize.Op;
 
@@ -45,7 +45,17 @@ exports.findComments = (req, res) =>{
 			post_ix:{[Op.like]:post_ix}
 		}
 	}).then((comment)=>{
+		Promise.all(comment.map((value) => {
+			return User.findOne({where:{ix:value.dataValues.user_ix}})
+		})).then((res)=>{
+			comment.map((value, index, array)=>{
+				console.log(res[index].dataValues.name);
+				value.dataValues.user_name = res[index].dataValues.name;
+			})
+		}).then(()=>{
 			res.status(200).json(comment);
+		})
+		//	res.status(200).json(comment);
 	}).catch(onError)
 
 	
