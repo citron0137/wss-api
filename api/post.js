@@ -92,12 +92,12 @@ exports.findPostByIx = (req, res) =>{
 		}
 	}).then((post)=>{
 		const is_admin = req.decoded.is_admin || false;
-		const user_ix = req.decoded.ixi || 0;
+		const user_ix = req.decoded.ix || 0;
 		
 		if(!post){
 			throw new Error("doesn't exist");
 		}
-		if(post.is_private && !is_admin &&post.user_ix != user_ix){
+		if(post.is_private && !is_admin && post.user_ix != user_ix){
 			throw new Error('Unauthorized');
 		}
 		if(post.is_anon && !is_admin &&post.user_ix !=user_ix){
