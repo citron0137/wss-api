@@ -1,4 +1,4 @@
-const {Post,Board, Sequelize } = require('../models');
+const {User, Post,Board, Sequelize } = require('../models');
 const Env = require('../config/environments');
 const Op = Sequelize.Op;
 
@@ -72,7 +72,25 @@ exports.findPosts = (req, res) =>{
 				element.title = "private post";
 			}
 		});
-		res.status(200).json(post);
+		Promise.all(post.map((value) => {
+			if(value.dataValues.user_ix == -1){
+				return 'anon';
+			}
+
+			return User.findOne({where:{ix:value.dataValues.user_ix}});
+		})).then((res)=>{
+			post.map((value, index, array)=>{
+				if( value.dataValues.user_ix != -1){
+					console.log(res[index].dataValues.name);
+					value.dataValues.user_name = res[index].dataValues.name;
+				}else{
+					value.dataValues.user_name = "anon";
+				}
+			})
+		}).then(()=>{
+			res.status(200).json(post);
+		})
+		//res.status(200).json(post);
 	}).catch(onError)
 }
 
