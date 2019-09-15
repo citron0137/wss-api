@@ -4,8 +4,8 @@ const Op = Sequelize.Op;
 
 exports.createVote = (req, res) =>{	
 
-	const { title, is_private, is_comment, is_anon,is_anon_vote,start_at,close_at} = req.body;
-	const user_ix = req.decode.ix;
+	const { title, is_private, is_comment, is_anon,is_anon_vote,start_at,close_at, post_ix} = req.body;
+	const user_ix = req.decoded.ix;
 	const onError = (error) => {
 		res.status(400).json({
 			success: false,
@@ -13,7 +13,7 @@ exports.createVote = (req, res) =>{
 		})
 	}
 	Vote.create({
-		user_ix, title, is_private, is_comment, is_anon,is_anon_vote,start_at,close_at
+		user_ix,post_ix, title, is_private, is_comment, is_anon,is_anon_vote,start_at,close_at
 	})
 	.then((vote)=>{
 		res.status(200).json(vote);
@@ -73,8 +73,8 @@ exports.findVoteItems = (req, res) =>{
 			vote.map((value, index, array)=>{
 				value.dataValues.count = res[index];
 			})
-			console.log("--------------------------------------------------");
-			console.log(vote);
+			//console.log("--------------------------------------------------");
+			//console.log(vote);
 		}).then(()=>{
 			res.status(200).json(vote);
 		})
@@ -153,17 +153,45 @@ exports.deleteVote = (req, res) =>{
 
 exports.voteToItem = (req, res) =>{	
 	const {  vote_item_ix } = req.body;
-	const user_ix = req.decode.ix;
+	const user_ix = req.decoded.ix;
+
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,
 			message: error.message
 		})
 	}
+	VoteItem.findOne({where:{
+		ix:vote_item_ix
+	}}).then((vote_item)=>{
+		if(vote_item){
+			console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			console.log(vote_item_ix);
+			console.log(vote_item.dataValues);
+			vote_ix = vote_item.dataValues.vote_ix;
+			VoteItem.findAll({where:{
+				vote_ix
+			}}).then((items)=>{
+				console.log("vote_items~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+				let sum =0;
+				console.log(items.dataValues);
 
-	VoteUser.create({
-		user_ix, vote_item_ix
-	}).then((vote)=>{
-		res.status(201).json(vote);
+				//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+				Promise.all(items.map((value) => {
+				console.log("vote_items2222222~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+				console.log(value.dataValues);
+					return VoteUser.destroy({where:{vote_item_ix:value.dataValues.ix, user_ix}})
+				})).then(()=>{
+					VoteUser.create({
+						user_ix, vote_item_ix
+					}).then((vote)=>{
+						res.status(201).json(vote);
+					})
+				
+				})
+				//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
+			})
+		}
+	
 	}).catch(onError)
 }

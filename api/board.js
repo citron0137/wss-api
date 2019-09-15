@@ -5,7 +5,10 @@ const Op = Sequelize.Op;
 exports.createBoard = (req, res) =>{
 	
 	const { name, is_admin } = req.body;
-
+	const parent_name  = req.body.parent_name || "etc";
+	if(!req.decoded.is_admin ){
+		throw new Error('Unauthorized');
+	}
 	
 	const onError = (error) => {
 		res.status(403).json({
@@ -20,6 +23,7 @@ exports.createBoard = (req, res) =>{
 		if(!board){
 			Board.create({
 				name,
+				parent_name,
 				is_admin
 			})
 			.then((board)=>{
@@ -75,6 +79,9 @@ exports.findBoardByIx = (req, res) =>{
 exports.updateBoard = (req, res) =>{	
 	const board_ix = req.params.board_ix
 	const name = req.query.name || req.body.name
+	if(!req.decoded.is_admin ){
+		throw new Error('Unauthorized');
+	}
 	
 	const onError = (error) => {
 		res.status(403).json({
@@ -102,6 +109,9 @@ exports.updateBoard = (req, res) =>{
 
 exports.deleteBoard = (req, res) =>{
 	const board_ix = req.params.board_ix
+	if(!req.decoded.is_admin ){
+		throw new Error('Unauthorized');
+	}
 	const onError = (error) => {
 		res.status(403).json({
 			success: false,

@@ -30,6 +30,7 @@ router.delete('/board/:board_ix',auth.check, board.deleteBoard)
 
 router.post('/post/',auth.check, post.createPost)
 router.get('/post/', auth.ckusr, post.findPosts)
+router.get('/hot_post/', auth.ckusr, post.findHotPosts)
 router.get('/post/:post_ix',auth.ckusr, post.findPostByIx)
 router.put('/post/:post_ix',auth.check, post.updatePost)
 router.delete('/post/:post_ix',auth.check, post.deletePost)
@@ -40,7 +41,7 @@ router.get('/comment/:comment_ix',auth.ckusr, comment.findCommentByIx)
 router.put('/comment/:comment_ix',auth.check, comment.updateComment)
 router.delete('/comment/:comment_ix',auth.check, comment.deleteComment)
 
-router.use('/file', require('./file'))
+router.use('/file', auth.ckusr, require('./file'))
 
 router.post('/vote/',auth.check, vote.createVote)
 router.get('/vote/',auth.ckusr, vote.findVotes)

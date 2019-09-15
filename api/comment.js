@@ -33,26 +33,41 @@ exports.createComment = (req, res) =>{
 
 exports.findComments = (req, res) =>{	
 	const post_ix = req.query.post_ix || req.body.post_ix || "%"
+	const is_admin = req.decoded.is_admin || false;
+	const user_ix = req.decoded.ix || 0;
 	const onError = (error) => {
 		res.status(400).json({
 			success: false,
 			message: error.message
 		})
 	}
-	let post_user_ix = 0;
 	Comment.findAll({
 		where:{
 			post_ix:{[Op.like]:post_ix}
 		}
 	}).then((comment)=>{
+		console.log(comment);
+		comment.forEach(element => {
+			if(element.is_anon && !(is_admin) && element.user_ix != user_ix){
+				element.user_ix = -1;
+			}
+			if(element.is_private&& !(is_admin) && element.user_ix != (user_ix)){
+				element.contents = "private comment";
+			}
+		});
 		Promise.all(comment.map((value) => {
 			return User.findOne({where:{ix:value.dataValues.user_ix}})
 		})).then((res)=>{
 			comment.map((value, index, array)=>{
-				console.log(res[index].dataValues.name);
-				value.dataValues.user_name = res[index].dataValues.name;
+				//console.log(res[index]);
+				if(res[index] == null){
+					value.dataValues.user_name = "Anon User";
+				}else{
+					value.dataValues.user_name = res[index].dataValues.name;
+				}
 			})
 		}).then(()=>{
+			console.log(comment);
 			res.status(200).json(comment);
 		})
 		//	res.status(200).json(comment);

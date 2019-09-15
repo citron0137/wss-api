@@ -4,7 +4,8 @@ const Op = Sequelize.Op;
 
 exports.createPost = (req, res) =>{	
 
-	const { board_ix, title, contents, is_private, is_comment, is_anon } = req.body;
+	const { board_ix, title, contents, is_private, is_comment, is_anon} = req.body;
+	const vote_ix = req.body.vote_ix || -1; 
 	const user_ix = req.decoded.ix;
 	const onError = (error) => {
 		res.status(400).json({
@@ -28,7 +29,8 @@ exports.createPost = (req, res) =>{
 			contents,
 			is_private,
 			is_anon,
-			is_comment
+			is_comment,
+			vote_ix
 		})
 		.then((post)=>{
 			res.status(200).json(post);
@@ -37,8 +39,7 @@ exports.createPost = (req, res) =>{
 	}).catch(onError)
 }
 
-
-exports.findPosts = (req, res) =>{	
+exports.findHotPosts = (req, res) =>{	
 	const title = req.query.title || req.body.title || "%"
 	const board_ix = req.query.board_ix || req.body.board_ix || "%"
 	const page_num = req.query.page || req.body.page || 0
@@ -53,14 +54,16 @@ exports.findPosts = (req, res) =>{
 
 	Post.findAll({
 		attributes:[
-		'ix','user_ix', 'board_ix', 'title', 'is_private', 'is_anon', 'view_count'
+		'ix','user_ix', 'board_ix', 'title', 'is_private', 'is_anon', 'view_count','createdAt'
 		],
 		where:{
 			title:{[Op.like]:"%"+title+"%"},
 			board_ix:{[Op.like]:board_ix}
 		},
-		limit: 10,
-		offset: 10*page_num
+		limit: 6,
+		order: [
+			['view_count','desc']
+		]
 	}).then((post)=>{
 		const is_admin = req.decoded.is_admin || false;
 		const user_ix = req.decoded.ix || 0;
@@ -80,11 +83,78 @@ exports.findPosts = (req, res) =>{
 			return User.findOne({where:{ix:value.dataValues.user_ix}});
 		})).then((res)=>{
 			post.map((value, index, array)=>{
-				if( value.dataValues.user_ix != -1){
-					console.log(res[index].dataValues.name);
-					value.dataValues.user_name = res[index].dataValues.name;
+				if(res[index] == null){
+					value.dataValues.user_name = "Unknown User";
 				}else{
-					value.dataValues.user_name = "anon";
+					if( value.dataValues.user_ix != -1){
+						console.log(res[index].dataValues.name);
+						value.dataValues.user_name = res[index].dataValues.name;
+					}else{
+						value.dataValues.user_name = "anon";
+					}
+				}
+			})
+		}).then(()=>{
+			res.status(200).json(post);
+		})
+		//res.status(200).json(post);
+	}).catch(onError)
+}
+
+exports.findPosts = (req, res) =>{	
+	const title = req.query.title || req.body.title || "%"
+	const board_ix = req.query.board_ix || req.body.board_ix || "%"
+	const page_num = req.query.page || req.body.page || 0
+
+
+	const onError = (error) => {
+		res.status(400).json({
+			success: false,
+			message: error.message
+		})
+	}
+
+	Post.findAll({
+		attributes:[
+		'ix','user_ix', 'board_ix', 'title', 'is_private', 'is_anon', 'view_count','createdAt'
+		],
+		where:{
+			title:{[Op.like]:"%"+title+"%"},
+			board_ix:{[Op.like]:board_ix}
+		},
+		limit: 10,
+		offset: 10*page_num,
+		order: [
+			['ix','desc']
+		]
+	}).then((post)=>{
+		const is_admin = req.decoded.is_admin || false;
+		const user_ix = req.decoded.ix || 0;
+		post.forEach(element => {
+			if(element.is_anon && !(is_admin) && element.user_ix != user_ix){
+				element.user_ix = -1;
+			}
+			if(element.is_private&& !(is_admin) && element.user_ix != (user_ix)){
+				element.title = "private post";
+			}
+		});
+		Promise.all(post.map((value) => {
+			if(value.dataValues.user_ix == -1){
+				return 'anon';
+			}
+
+			return User.findOne({where:{ix:value.dataValues.user_ix}});
+		})).then((res)=>{
+			post.map((value, index, array)=>{
+				if(res[index] == null){
+					value.dataValues.user_name = "Unknown User";
+				}else{
+					if( value.dataValues.user_ix != -1){
+						console.log(res[index].dataValues.name);
+						value.dataValues.user_name = res[index].dataValues.name;
+					}else{
+						value.dataValues.user_name = "anon";
+					}
 				}
 			})
 		}).then(()=>{

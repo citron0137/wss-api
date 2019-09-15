@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) =>{
     return sequelize.define('vote',{
         ix : {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
         user_ix : {type: DataTypes.INTEGER},
+        post_ix : {type: DataTypes.INTEGER},
         title : {type: DataTypes.TEXT, allowNull: false},
         is_anon : {type: DataTypes.BOOLEAN, defaultValue: false},
         is_anon_vote : {type: DataTypes.BOOLEAN, defaultValue: false},
