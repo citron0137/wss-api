@@ -4,7 +4,7 @@ const environments = {
 		password: 'pass',
 		database: 'wss',
 		host: 'localhost',
-		dialect: 'mariadb'
+		dialect: 'mysql'
 	},
 	jwt : {
 		secret: "secret"
